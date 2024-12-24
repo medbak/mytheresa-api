@@ -1,0 +1,37 @@
+# config/services.yaml
+parameters:
+    app.pagination.limit: '%env(int:API_PAGINATION_LIMIT)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+        bind:
+            $paginationLimit: '%app.pagination.limit%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Explicitly configure the repository as a service
+    App\Infrastructure\Repository\ProductRepository:
+        arguments:
+            $registry: '@doctrine'
+
+    # Configure the discount strategy
+    App\Domain\Discount\CompositeDiscountStrategy:
+        arguments:
+            $strategies:
+                - '@App\Domain\Discount\CategoryDiscountStrategy'
+                - '@App\Domain\Discount\SkuDiscountStrategy'
+
+    App\Domain\Discount\CategoryDiscountStrategy: ~
+    App\Domain\Discount\SkuDiscountStrategy: ~
+
+    # Configure the repository interface
+    App\Domain\Repository\ProductRepositoryInterface:
+        alias: App\Infrastructure\Repository\ProductRepository
