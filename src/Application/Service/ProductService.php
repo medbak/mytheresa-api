@@ -16,12 +16,10 @@ final readonly class ProductService
 
     public function getProducts(?string $category, ?int $priceLessThan): array
     {
-        $products = $this->productFilter->findByFilters($category, $priceLessThan, 6);
-        $hasMore = \count($products) > 5;
+        $products = $this->productFilter->findByFilters($category, $priceLessThan);
 
         return $this->formatter->format(
-            \array_slice($products, 0, 5),
-            $hasMore
+            \array_slice($products, 0, 5)
         );
     }
 }

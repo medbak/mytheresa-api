@@ -26,7 +26,6 @@ services:
 
     App\Domain\Service\DiscountService:
         arguments:
-            $calculator: '@App\Domain\Service\DiscountCalculator'
             $strategies:
                 - '@App\Domain\Service\DiscountStrategy\CategoryDiscountStrategy'
                 - '@App\Domain\Service\DiscountStrategy\SkuDiscountStrategy'

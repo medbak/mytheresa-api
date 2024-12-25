@@ -45,6 +45,21 @@ services:
     networks:
       - mytheresa
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    ports:
+      - 4698:80
+    container_name: phpmyadmin_general
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+      UPLOAD_LIMIT: 30000000000
+    networks:
+      - mytheresa
+
   redis:
     image: "redis:7.0-alpine"
     ports:

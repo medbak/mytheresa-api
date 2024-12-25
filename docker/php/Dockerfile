@@ -2,13 +2,17 @@ FROM php:8.3-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    default-mysql-client \
     git \
     unzip \
     libzip-dev \
     && docker-php-ext-install zip pdo pdo_mysql
 
-# Install Redis
-RUN pecl install redis && docker-php-ext-enable redis
+RUN pecl uninstall -r redis
+
+# Install specific version
+RUN pecl install redis-5.3.7 && \
+    docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

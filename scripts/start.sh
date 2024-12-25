@@ -95,22 +95,6 @@ clear_cache() {
     print_success "Cache cleared"
 }
 
-check_api_health() {
-    print_status "Checking API health..."
-    local retries=30
-    while [ $retries -gt 0 ]; do
-        if curl -s http://localhost:8080/health >/dev/null 2>&1; then
-            print_success "API is up and running!"
-            echo -e "${GREEN}API is accessible at: http://localhost:8080${NC}"
-            return 0
-        fi
-        echo -n "."
-        sleep 1
-        retries=$((retries-1))
-    done
-    print_error "API failed to become healthy in time"
-}
-
 # Main execution
 main() {
     echo "🚀 Starting MyTheresa Product API Setup and Launch"
@@ -136,9 +120,6 @@ main() {
     run_migrations
     load_fixtures
     clear_cache
-
-    # Final health check
-    check_api_health
 
     # Print final success message
     echo -e "\n${GREEN}🎉 Setup and launch completed successfully!${NC}"

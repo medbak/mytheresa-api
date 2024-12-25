@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace migrations;
+namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
@@ -31,10 +31,8 @@ class Version20241224000001 extends AbstractMigration
             sku VARCHAR(6) NOT NULL,
             name VARCHAR(255) NOT NULL,
             price INT UNSIGNED NOT NULL,
-            created_at DATETIME NOT NULL,
             UNIQUE INDEX UNIQ_SKU (sku),
             INDEX idx_category_price (category_id, price),
-            INDEX idx_created_at (created_at),
             PRIMARY KEY(id),
             CONSTRAINT FK_CATEGORY FOREIGN KEY (category_id)
                 REFERENCES categories (id)
@@ -48,7 +46,6 @@ class Version20241224000001 extends AbstractMigration
             percentage DECIMAL(5,2) UNSIGNED NOT NULL,
             valid_from DATETIME NOT NULL,
             valid_until DATETIME DEFAULT NULL,
-            created_at DATETIME NOT NULL,
             UNIQUE INDEX UNIQ_CATEGORY (category_id),
             UNIQUE INDEX UNIQ_SKU (sku),
             INDEX idx_validity (valid_from, valid_until),
