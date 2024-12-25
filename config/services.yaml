@@ -7,31 +7,26 @@ services:
         autowire: true
         autoconfigure: true
         public: false
-        bind:
-            $paginationLimit: '%app.pagination.limit%'
 
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
-            - '../src/Entity/'
+            - '../src/Domain/Entity/'
             - '../src/Kernel.php'
 
-    # Explicitly configure the repository as a service
-    App\Infrastructure\Repository\ProductRepository:
-        arguments:
-            $registry: '@doctrine'
+    App\Domain\Service\DiscountCalculator:
+        autowire: true
 
-    # Configure the discount strategy
-    App\Domain\Discount\CompositeDiscountStrategy:
+    App\Domain\Service\DiscountStrategy\CategoryDiscountStrategy:
+        autowire: true
+
+    App\Domain\Service\DiscountStrategy\SkuDiscountStrategy:
+        autowire: true
+
+    App\Domain\Service\DiscountService:
         arguments:
+            $calculator: '@App\Domain\Service\DiscountCalculator'
             $strategies:
-                - '@App\Domain\Discount\CategoryDiscountStrategy'
-                - '@App\Domain\Discount\SkuDiscountStrategy'
-
-    App\Domain\Discount\CategoryDiscountStrategy: ~
-    App\Domain\Discount\SkuDiscountStrategy: ~
-
-    # Configure the repository interface
-    App\Domain\Repository\ProductRepositoryInterface:
-        alias: App\Infrastructure\Repository\ProductRepository
+                - '@App\Domain\Service\DiscountStrategy\CategoryDiscountStrategy'
+                - '@App\Domain\Service\DiscountStrategy\SkuDiscountStrategy'

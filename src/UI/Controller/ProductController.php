@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\UI\Controller;
 
 use App\Application\Service\ProductService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,15 +20,13 @@ class ProductController extends AbstractController
     #[Route('/products', name: 'get_products', methods: ['GET'])]
     public function getProducts(Request $request): JsonResponse
     {
-        $category = $request->query->get('category');
-        $priceLessThan = $request->query->get('priceLessThan');
-
-        if (null !== $priceLessThan) {
-            $priceLessThan = (int) $priceLessThan;
-        }
-
-        $products = $this->productService->getProducts($category, $priceLessThan);
-
-        return new JsonResponse(['products' => $products]);
+        return new JsonResponse(
+            $this->productService->getProducts(
+                $request->query->get('category'),
+                $request->query->get('priceLessThan')
+                    ? (int) $request->query->get('priceLessThan')
+                    : null
+            )
+        );
     }
 }

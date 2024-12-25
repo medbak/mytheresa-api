@@ -4,33 +4,24 @@ declare(strict_types=1);
 
 namespace App\Application\Service;
 
-use App\Domain\Discount\DiscountStrategyInterface;
-use App\Domain\Repository\ProductRepositoryInterface;
+use App\Domain\Repository\ProductFilterInterface;
 
-readonly class ProductService
+final readonly class ProductService
 {
     public function __construct(
-        private ProductRepositoryInterface $productRepository,
-        private DiscountStrategyInterface $discountStrategy,
+        private ProductFilterInterface $productFilter,
+        private ProductResponseFormatter $formatter,
     ) {
     }
 
-    public function getProducts(?string $category = null, ?int $priceLessThan = null): array
+    public function getProducts(?string $category, ?int $priceLessThan): array
     {
-        $products = $this->productRepository->findByFilters($category, $priceLessThan);
+        $products = $this->productFilter->findByFilters($category, $priceLessThan, 6);
+        $hasMore = \count($products) > 5;
 
-        foreach ($products as $product) {
-            $discount = $this->discountStrategy->getDiscount($product);
-            if (null !== $discount) {
-                $product->applyDiscount($discount);
-            }
-        }
-
-        return array_map(fn ($product) => [
-            'sku' => $product->getSku(),
-            'name' => $product->getName(),
-            'category' => $product->getCategory(),
-            'price' => $product->getPrice()->toArray(),
-        ], $products);
+        return $this->formatter->format(
+            \array_slice($products, 0, 5),
+            $hasMore
+        );
     }
 }
