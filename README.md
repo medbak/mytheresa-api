@@ -1,6 +1,6 @@
 # MyTheresa Product API
 
-A Symfony-based REST API for product management with dynamic discount rules implementation following DDD (Domain-Driven Design) principles.
+A Symfony-based REST API for product management with dynamic discount rules.
 
 ## Features
 
