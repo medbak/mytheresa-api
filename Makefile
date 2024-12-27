@@ -1,6 +1,6 @@
 # Define variables
 DOCKER_COMPOSE = docker compose
-PHP_CONTAINER = $(DOCKER_COMPOSE) exec php
+PHP_CONTAINER = $(DOCKER_COMPOSE) run --rm php bash
 SYMFONY = $(PHP_CONTAINER) bin/console
 
 .PHONY: help start stop restart logs shell test cs-fix
@@ -32,10 +32,18 @@ logs: ## View container logs
 	$(DOCKER_COMPOSE) logs -f
 
 shell: ## Access the PHP container shell
-	$(PHP_CONTAINER) sh
+	$(PHP_CONTAINER)
 
 test: ## Run tests
-	$(PHP_CONTAINER) bin/phpunit
+	$(DOCKER_COMPOSE) exec php composer test
 
 cs-fix: ## Fix PHP coding standards
 	$(PHP_CONTAINER) vendor/bin/php-cs-fixer fix src/
+
+cs: ## Check code style
+	$(DOCKER_COMPOSE) exec php composer csdiff
+
+stan: ## Run static analysis
+	$(DOCKER_COMPOSE) exec php composer stan
+
+quality: cs stan

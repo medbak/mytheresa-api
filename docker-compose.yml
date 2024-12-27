@@ -6,7 +6,11 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     volumes:
-      - ./:/var/www/html
+      - type: bind
+        source: .
+        target: /var/www/html
+    tmpfs:
+      - /tmp
     depends_on:
       mysql:
         condition: service_healthy
