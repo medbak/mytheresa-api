@@ -47,7 +47,10 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - mytheresa
+      mytheresa:
+        ipv4_address: 172.26.1.2
+        aliases:
+          - db.server
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -62,17 +65,19 @@ services:
       MYSQL_ROOT_PASSWORD: root
       UPLOAD_LIMIT: 30000000000
     networks:
-      - mytheresa
+      mytheresa:
+        ipv4_address: 172.26.1.3
 
   redis:
-    image: "redis:7.0-alpine"
+    image: "redis:6.2-alpine"
     ports:
       - "6385:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
     networks:
-      - mytheresa
+      mytheresa:
+        ipv4_address: 172.26.1.5
 
 volumes:
   mysql_data:
@@ -80,4 +85,8 @@ volumes:
 
 networks:
   mytheresa:
-    driver: bridge
+    name: mytheresa-net
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.26.0.0/16

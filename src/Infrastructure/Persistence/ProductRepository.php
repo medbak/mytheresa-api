@@ -9,31 +9,37 @@ use App\Domain\Repository\ProductFilterInterface;
 use App\Domain\Repository\ProductFinderInterface;
 use App\Infrastructure\Cache\ProductCache;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
+use Psr\Cache\InvalidArgumentException;
 
-readonly class ProductRepository implements ProductFinderInterface, ProductFilterInterface
+class ProductRepository extends EntityRepository implements ProductFinderInterface, ProductFilterInterface
 {
-    public function __construct(
-        private EntityManagerInterface $entityManager,
-        private ProductCache $cache,
-    ) {
+    private ProductCache $cache;
+
+    public function __construct(EntityManagerInterface $entityManager, ProductCache $cache)
+    {
+        parent::__construct($entityManager, $entityManager->getClassMetadata(Product::class));
+        $this->cache = $cache;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function findBySku(string $sku): ?Product
     {
         return $this->cache->get($sku) ??
-            $this->entityManager->getRepository(Product::class)->findOneBy(['sku' => $sku]);
+            $this->findOneBy(['sku' => $sku]);
     }
 
     public function findByFilters(?string $category, ?int $priceLessThan, int $limit = 5): array
     {
-        $qb = $this->entityManager->createQueryBuilder()
-            ->select('p')
-            ->from(Product::class, 'p')
+        $qb = $this->createQueryBuilder('p')
             ->orderBy('p.sku', 'ASC')
             ->setMaxResults($limit);
 
         if ($category) {
-            $qb->andWhere('p.category.name = :category')
+            $qb->join('p.category', 'c')
+            ->andWhere('c.name = :category')
                 ->setParameter('category', $category);
         }
 

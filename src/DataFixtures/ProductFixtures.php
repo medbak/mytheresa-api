@@ -71,7 +71,7 @@ class ProductFixtures extends Fixture
 
         // Discounts
         $validFrom = new \DateTimeImmutable('2024-01-01');
-        $validUntil = new \DateTimeImmutable('2024-12-31');
+        $validUntil = new \DateTimeImmutable('2025-12-31');
 
         $bootsDiscount = Discount::createForCategory(
             $categories['boots'],

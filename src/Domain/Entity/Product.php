@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Infrastructure\Persistence\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table(name: 'products')]
 #[ORM\Index(columns: ['category_id', 'price'])]
 class Product

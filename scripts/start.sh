@@ -88,6 +88,10 @@ main() {
        print_success "Fixtures loaded"
    fi
 
+   print_status "Setting up test database..."
+   docker-compose exec php bin/console doctrine:schema:drop --force --full-database --env=test
+   docker-compose exec php bin/console doctrine:schema:create --env=test
+
    print_status "Clearing cache..."
    docker-compose exec -T php bin/console cache:clear
    print_success "Cache cleared"
