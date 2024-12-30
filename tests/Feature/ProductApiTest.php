@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Feature;
 
+use App\Application\Service\ProductService;
 use App\Domain\Entity\Category;
 use App\Domain\Entity\Discount;
 use App\Domain\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\MockObject\Exception;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -147,6 +149,52 @@ class ProductApiTest extends WebTestCase
             $this->assertEquals('boots', $product['category']);
             $this->assertLessThanOrEqual(100000, $product['price']['original']);
         }
+    }
+
+    public function testGetProductsReturnsEmptyArrayForNoMatches(): void
+    {
+        $this->client->request('GET', '/products?category=nonexistent');
+
+        $this->assertResponseIsSuccessful();
+        $content = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertArrayHasKey('products', $content);
+        $this->assertCount(0, $content['products']);
+    }
+
+    public function testGetProductsReturnsErrorForInvalidParameters(): void
+    {
+        $this->client->request('GET', '/products?priceLessThan=-100');
+
+        $this->assertResponseStatusCodeSame(400);
+        $content = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertArrayHasKey('status', $content);
+        $this->assertEquals('error', $content['status']);
+        $this->assertArrayHasKey('message', $content);
+        $this->assertEquals('Invalid input parameters', $content['message']);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetProductsHandlesUnexpectedServerError(): void
+    {
+        $mockProductService = $this->createMock(ProductService::class);
+        $mockProductService->method('getProducts')->willThrowException(new \Exception('Simulated server error'));
+
+        self::getContainer()->set(ProductService::class, $mockProductService);
+
+        $this->client->request('GET', '/products?category=boots');
+
+        $this->assertResponseStatusCodeSame(500);
+
+        $content = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertArrayHasKey('status', $content);
+        $this->assertEquals('error', $content['status']);
+        $this->assertArrayHasKey('message', $content);
+        $this->assertEquals('An unexpected error occurred. Please try again later.', $content['message']);
     }
 
     private function findProductBySku(array $products, string $sku): ?array

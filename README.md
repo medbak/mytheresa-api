@@ -2,16 +2,6 @@
 
 A Symfony-based REST API for product management with dynamic discount rules.
 
-## Features
-
-- Product catalog management
-- Dynamic discount rules
-- Category-based discounts
-- SKU-specific discounts
-- RESTful API endpoints
-- Pagination support
-- Performance optimized for large datasets
-
 ## Prerequisites
 
 - Docker
@@ -60,8 +50,10 @@ src/
 ├── Infrastructure/     
 │   ├── Cache/
 │   └── Persistence/
-└── UI/                
-    └── Controller/
+└── UI
+    ├── Controller/
+    ├── Validator/
+    └── Formatter/
 ```
 
 ### Available Commands

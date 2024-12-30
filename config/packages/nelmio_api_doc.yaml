@@ -1,0 +1,64 @@
+nelmio_api_doc:
+  models:
+    use_jms: false
+  documentation:
+    openapi: 3.0.0
+    info:
+      title: MyTheresa API
+      description: API for managing products and applying discounts
+      version: 1.0.0
+    paths:
+      /products:
+        get:
+          tags: [ 'Products' ]
+          summary: Get products list
+          parameters:
+            - name: category
+              in: query
+              schema:
+                type: string
+            - name: priceLessThan
+              in: query
+              schema:
+                type: integer
+          responses:
+            '200':
+              description: Successful operation
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      products:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
+    components:
+      schemas:
+        Product:
+          type: object
+          properties:
+            sku:
+              type: string
+            name:
+              type: string
+            category:
+              type: string
+            price:
+              type: object
+              properties:
+                original:
+                  type: integer
+                final:
+                  type: integer
+                discount_percentage:
+                  type: string
+                  nullable: true
+                currency:
+                  type: string
+  areas:
+    path_patterns:
+      - ^/api(?!/doc$)
+      - ^/products

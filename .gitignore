@@ -22,3 +22,5 @@
 .php-cs-fixer.cache
 
 .idea
+
+.env

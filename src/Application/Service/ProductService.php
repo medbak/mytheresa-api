@@ -6,11 +6,11 @@ namespace App\Application\Service;
 
 use App\Domain\Repository\ProductFilterInterface;
 
-final readonly class ProductService
+class ProductService
 {
     public function __construct(
-        private ProductFilterInterface $productFilter,
-        private ProductResponseFormatter $formatter,
+        private readonly ProductFilterInterface $productFilter,
+        private readonly ProductResponseFormatter $formatter,
     ) {
     }
 
