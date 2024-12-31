@@ -58,6 +58,8 @@ class ProductApiTest extends WebTestCase
             new Product('000003', 'Special Discount Boots', $bootsCategory, 71000),
             new Product('000004', 'Basic Sandals', $sandalsCategory, 45000),
             new Product('000005', 'Luxury Sandals', $sandalsCategory, 95000),
+            new Product('000006', 'Extra Sandals', $sandalsCategory, 110000),
+            new Product('000007', 'Simple Sandals', $sandalsCategory, 100000),
         ];
 
         foreach ($products as $product) {
@@ -65,7 +67,7 @@ class ProductApiTest extends WebTestCase
         }
 
         $validFrom = new \DateTimeImmutable('2024-01-01');
-        $validUntil = new \DateTimeImmutable('2025-12-31');
+        $validUntil = (new \DateTimeImmutable())->modify('+1 month');
 
         $categoryDiscount = Discount::createForCategory(
             $bootsCategory,
@@ -195,6 +197,41 @@ class ProductApiTest extends WebTestCase
         $this->assertEquals('error', $content['status']);
         $this->assertArrayHasKey('message', $content);
         $this->assertEquals('An unexpected error occurred. Please try again later.', $content['message']);
+    }
+
+    public function testPaginationPage1(): void
+    {
+        $this->client->request('GET', '/products?page=1');
+        $content = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(5, $content['products']);
+        $this->assertTrue($content['has_more']);
+    }
+
+    public function testPaginationPage2(): void
+    {
+        $this->client->request('GET', '/products?page=2');
+        $content = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(2, $content['products']);
+        $this->assertFalse($content['has_more']);
+    }
+
+    public function testPaginationPage0(): void
+    {
+        $this->client->request('GET', '/products?page=0');
+        $this->assertResponseStatusCodeSame(400);
+    }
+
+    public function testPaginationWithFilters(): void
+    {
+        $this->client->request('GET', '/products?category=boots&page=1');
+
+        $content = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(3, $content['products']);
+        $this->assertFalse($content['has_more']);
     }
 
     private function findProductBySku(array $products, string $sku): ?array

@@ -10,17 +10,29 @@ nelmio_api_doc:
     paths:
       /products:
         get:
-          tags: [ 'Products' ]
+          tags: ['Products']
           summary: Get products list
           parameters:
             - name: category
               in: query
+              description: Filter products by category
+              required: false
               schema:
                 type: string
             - name: priceLessThan
               in: query
+              description: Filter products by maximum price (before discounts)
+              required: false
               schema:
                 type: integer
+            - name: page
+              in: query
+              description: Page number for pagination
+              required: false
+              schema:
+                type: integer
+                minimum: 1
+                default: 1
           responses:
             '200':
               description: Successful operation
@@ -31,10 +43,27 @@ nelmio_api_doc:
                     properties:
                       status:
                         type: string
+                        example: "success"
                       products:
                         type: array
                         items:
                           $ref: '#/components/schemas/Product'
+                        maxItems: 5
+                      has_more:
+                        type: boolean
+                        description: Indicates if there are more products available
+            '400':
+              description: Invalid input parameters
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+            '500':
+              description: Server error
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
     components:
       schemas:
         Product:
@@ -42,22 +71,39 @@ nelmio_api_doc:
           properties:
             sku:
               type: string
+              example: "000001"
             name:
               type: string
+              example: "BV Lean leather ankle boots"
             category:
               type: string
+              example: "boots"
             price:
               type: object
               properties:
                 original:
                   type: integer
+                  example: 89000
                 final:
                   type: integer
+                  example: 62300
                 discount_percentage:
                   type: string
                   nullable: true
+                  example: "30%"
                 currency:
                   type: string
+                  example: "EUR"
+                  enum: ["EUR"]
+        Error:
+          type: object
+          properties:
+            status:
+              type: string
+              example: "error"
+            message:
+              type: string
+              example: "Invalid input parameters"
   areas:
     path_patterns:
       - ^/api(?!/doc$)

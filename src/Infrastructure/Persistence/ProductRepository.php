@@ -31,15 +31,16 @@ class ProductRepository extends EntityRepository implements ProductFinderInterfa
             $this->findOneBy(['sku' => $sku]);
     }
 
-    public function findByFilters(?string $category, ?int $priceLessThan, int $limit = 5): array
+    public function findByFilters(?string $category, ?int $priceLessThan, int $limit, int $offset = 0): array
     {
         $qb = $this->createQueryBuilder('p')
             ->orderBy('p.sku', 'ASC')
-            ->setMaxResults($limit);
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
 
         if ($category) {
             $qb->join('p.category', 'c')
-            ->andWhere('c.name = :category')
+                ->andWhere('c.name = :category')
                 ->setParameter('category', $category);
         }
 

@@ -16,22 +16,29 @@ readonly class RequestValidator
     public function validate(array $data, array $constraints): array
     {
         $validationRules = [];
+
         foreach ($constraints as $field => $options) {
             $rules = [];
+
             foreach ($options['rules'] as $rule) {
-                if ('string' === $rule) {
-                    $rules[] = new Assert\Type('string');
-                } elseif (str_starts_with($rule, 'length_max')) {
-                    $max = (int) explode(':', $rule)[1];
-                    $rules[] = new Assert\Length(['max' => $max]);
-                } elseif ('numeric' === $rule) {
-                    $rules[] = new Assert\Type('numeric');
-                } elseif ('positive_or_zero' === $rule) {
-                    $rules[] = new Assert\PositiveOrZero();
+                $constraint = match (true) {
+                    'string' === $rule => new Assert\Type('string'),
+                    str_starts_with($rule, 'length_max') => new Assert\Length(['max' => (int) explode(':', $rule)[1]]),
+                    'numeric' === $rule => new Assert\Type('numeric'),
+                    'positive_or_zero' === $rule => new Assert\PositiveOrZero(),
+                    str_starts_with($rule, 'min:') => new Assert\GreaterThan((int) substr($rule, 4) - 1),
+                    default => null,
+                };
+
+                if ($constraint) {
+                    $rules[] = $constraint;
                 }
             }
+
             if (!empty($rules)) {
-                $validationRules[$field] = $options['optional'] ?? false ? new Assert\Optional($rules) : $rules;
+                $validationRules[$field] = $options['optional'] ?? false
+                    ? new Assert\Optional($rules)
+                    : $rules;
             }
         }
 

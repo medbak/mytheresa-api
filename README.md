@@ -30,6 +30,7 @@ This command will:
 ## Available Services
 
 - API: http://localhost:8085
+- Documentation: http://localhost:8085/api/doc
 - phpMyAdmin: http://localhost:4698
     - Server: mysql
     - Username: app
@@ -109,6 +110,11 @@ Retrieve products with optional filters.
 Query Parameters:
 - `category` - Filter by product category
 - `priceLessThan` - Filter by price (before discounts)
+- `page` - Page number (default: 1)
+
+Notes:
+- Each page returns at most 5 products
+- Response includes `has_more` flag indicating if more pages exist
 
 Example Response:
 ```json

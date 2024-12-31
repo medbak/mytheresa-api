@@ -14,12 +14,22 @@ class ProductService
     ) {
     }
 
-    public function getProducts(?string $category, ?int $priceLessThan): array
+    public function getProducts(?string $category, ?int $priceLessThan, int $page = 1): array
     {
-        $products = $this->productFilter->findByFilters($category, $priceLessThan);
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
 
-        return $this->formatter->format(
-            \array_slice($products, 0, 5)
+        $products = $this->productFilter->findByFilters(
+            $category,
+            $priceLessThan,
+            $limit + 1,
+            $offset
         );
+
+        $hasMore = \count($products) > $limit;
+
+        $productsToReturn = \array_slice($products, 0, $limit);
+
+        return $this->formatter->format($productsToReturn, $hasMore);
     }
 }

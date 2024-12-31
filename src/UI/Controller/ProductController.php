@@ -40,6 +40,10 @@ class ProductController extends AbstractController
                     'rules' => ['numeric', 'positive_or_zero'],
                     'optional' => true,
                 ],
+                'page' => [
+                    'rules' => ['numeric', 'min:1'],
+                    'optional' => true,
+                ],
             ];
 
             $violations = $this->requestValidator->validate($request->query->all(), $constraints);
@@ -51,32 +55,21 @@ class ProductController extends AbstractController
                 );
             }
 
+            $page = $request->query->getInt('page', 1);
             $price = $request->query->get('priceLessThan');
             $priceValue = null !== $price ? (int) $price : null;
 
             $result = $this->productService->getProducts(
                 $request->query->get('category'),
-                $priceValue
+                $priceValue,
+                $page,
             );
 
-            if (empty($result['products'])) {
-                return $this->json(
-                    [
-                        'status' => 'success',
-                        'message' => 'No products found',
-                        'products' => [],
-                    ],
-                    Response::HTTP_OK
-                );
-            }
-
-            return $this->json(
-                [
-                    'status' => 'success',
-                    'products' => $result['products'],
-                ],
-                Response::HTTP_OK
-            );
+            return $this->json([
+                'status' => 'success',
+                'products' => $result['products'],
+                'has_more' => $result['has_more'],
+            ], Response::HTTP_OK);
         } catch (\InvalidArgumentException $e) {
             return $this->json(
                 [

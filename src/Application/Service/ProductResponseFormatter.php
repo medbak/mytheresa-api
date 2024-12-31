@@ -16,13 +16,14 @@ readonly class ProductResponseFormatter
     ) {
     }
 
-    public function format(array $products): array
+    public function format(array $products, bool $hasMore = false): array
     {
         return [
             'products' => array_map(
                 [$this, 'formatProduct'],
                 $products
             ),
+            'has_more' => $hasMore,
         ];
     }
 

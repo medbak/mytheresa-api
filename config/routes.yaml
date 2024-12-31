@@ -3,3 +3,11 @@ controllers:
         path: ../src/UI/Controller/
         namespace: App\UI\Controller
     type: attribute
+
+
+index:
+    path: /
+    controller: App\UI\Controller\DefaultController::index
+    methods: GET|HEAD
+    defaults:
+        _format: json
